@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "FolderBrowserDialog.h"
 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	FolderBrowserDialog fbd;
@@ -21,3 +22,4 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
+

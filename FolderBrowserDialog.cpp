@@ -21,6 +21,7 @@ int FolderBrowserDialog::Flags = BIF_USENEWUI;
 HWND FolderBrowserDialog::Owner = 0;
 wchar_t FolderBrowserDialog::SelectedPath[MAX_PATH];
 wchar_t *FolderBrowserDialog::Title = 0;
+wchar_t *FolderBrowserDialog::szClassName = 0;
 WNDPROC FolderBrowserDialog::OldDlgProc = 0;
 HWND FolderBrowserDialog::hFolderDlg = 0;
 HHOOK FolderBrowserDialog::hHook = 0;
@@ -34,6 +35,11 @@ void FolderBrowserDialog::Init()
 	OldDlgProc = 0;
 	hFolderDlg = 0;
 	hHook = 0;
+	if (szClassName)
+	{
+		LocalFree(szClassName);
+		szClassName = 0;
+	}
 }
 
 void FolderBrowserDialog::Destroy()
@@ -144,9 +150,13 @@ INT CALLBACK FolderBrowserDialog::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARA
 
 BOOL CALLBACK FolderBrowserDialog::FindTreeViewCallback(HWND hwnd, LPARAM lParam)
 {
-	wchar_t szClassName[MAX_PATH];
-	szClassName[0] = 0;
-	::GetClassName(hwnd, szClassName, sizeof(szClassName));
+	if (!szClassName)
+	{
+		szClassName = (wchar_t*)LocalAlloc(LPTR, MAX_PATH*sizeof(wchar_t));
+		if (!szClassName) return FALSE;
+	}
+	//wchar_t szClassName[MAX_PATH];
+	::GetClassName(hwnd, szClassName, MAX_PATH*sizeof(wchar_t) - 1);
 	szClassName[MAX_PATH - 1] = 0;
 
 	if (lstrcmpi(szClassName, L"SysTreeView32") == 0)
@@ -154,7 +164,11 @@ BOOL CALLBACK FolderBrowserDialog::FindTreeViewCallback(HWND hwnd, LPARAM lParam
 		HWND* phWnd = (HWND*)lParam;
 		if (phWnd)
 			*phWnd = hwnd;
-
+		if (szClassName)
+		{
+			LocalFree(szClassName);
+			szClassName = 0;
+		}
 		return FALSE;
 	}
 

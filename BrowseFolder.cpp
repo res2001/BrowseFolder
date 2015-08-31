@@ -24,7 +24,7 @@ int main(int argc, _TCHAR* argv[])
 	::GetCurrentDirectory(MAX_PATH, curdir);
 
 	//setlocale(LC_ALL, "");
-
+        FolderBrowserDialog::Init();
 	FolderBrowserDialog::Owner = ::GetConsoleWindow();
 	FolderBrowserDialog::Flags = BIF_RETURNONLYFSDIRS | BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_NONEWFOLDERBUTTON;
 	FolderBrowserDialog::Title = L"Choose a folder please. Or try to create new ;)";
@@ -32,8 +32,10 @@ int main(int argc, _TCHAR* argv[])
 	if (FolderBrowserDialog::ShowDialog())
 	{
 		echo(hStdout, FolderBrowserDialog::SelectedPath);
+	        FolderBrowserDialog::Destroy();
 		::ExitProcess(0);
 	}
+        FolderBrowserDialog::Destroy();
 	::ExitProcess(1);
 }
 

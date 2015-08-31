@@ -42,4 +42,5 @@ private:
 	static WNDPROC OldDlgProc;
 	static HWND hFolderDlg;
 	static HHOOK hHook;
+	static wchar_t *szClassName;
 };

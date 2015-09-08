@@ -152,21 +152,20 @@ BOOL CALLBACK FolderBrowserDialog::FindTreeViewCallback(HWND hwnd, LPARAM lParam
 {
 	if (!szClassName)
 	{
-		szClassName = (wchar_t*)LocalAlloc(LPTR, MAX_PATH*sizeof(wchar_t));
+		szClassName = (wchar_t*)::LocalAlloc(LPTR, MAX_PATH*sizeof(wchar_t));
 		if (!szClassName) return FALSE;
 	}
-	//wchar_t szClassName[MAX_PATH];
 	::GetClassName(hwnd, szClassName, MAX_PATH*sizeof(wchar_t) - 1);
 	szClassName[MAX_PATH - 1] = 0;
 
-	if (lstrcmpi(szClassName, L"SysTreeView32") == 0)
+	if (::lstrcmpiW(szClassName, L"SysTreeView32") == 0)
 	{
 		HWND* phWnd = (HWND*)lParam;
 		if (phWnd)
 			*phWnd = hwnd;
 		if (szClassName)
 		{
-			LocalFree(szClassName);
+			::LocalFree(szClassName);
 			szClassName = 0;
 		}
 		return FALSE;
@@ -203,14 +202,6 @@ BOOL FolderBrowserDialog::CenterWindow(RECT* rectWindow)
 		rectWindow->bottom = nY + nHeight;
 		rectWindow->left = nX;
 		rectWindow->right = nX + nWidth;
-
-		//std::cout << std::dec << "nX=" << nX << "\t" << "nY=" << nY << "\n";
-		//std::cout << "nWidth=" << nWidth << "\tnHeight=" << nHeight << "\n";
-		//std::cout << "rectParent Left=" << rectParent.left << "\tRight=" << rectParent.right << "\ttop="
-		//	<< rectParent.top << "\tbottom" << rectParent.bottom << "\n";
-		//std::cout << "nScreenWidth=" << nScreenWidth << "\tnScreenHeight=" << nScreenHeight << "\n";
-		//std::cout << "HWNDDLG=0x" << std::hex << hFolderDlg << "\n";
-		//std::cout << "HWNDOWNER=0x" << std::hex << Owner << "\n";
 
 		return TRUE;
 	}

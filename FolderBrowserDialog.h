@@ -26,6 +26,7 @@ public:
 	bool SetDescription(const wchar_t* str);
 	bool SetTitle(const wchar_t* str);
 	bool SetCurdir(const wchar_t* str);
+	bool SetCurdir(const int idl);
 	bool SetRoot(const wchar_t* str);
 	bool SetRoot(const int r);
 	bool SetBufFromDir(const wchar_t * src, wchar_t * buf, int blen);

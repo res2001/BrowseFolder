@@ -39,6 +39,7 @@ Parameters:
 /CurPath:<folder>              - the path to the folder to be selected when 
                                  initializing the dialog.
                                  Default - "My computer".
+  <folder>                     - possible values: are the same as for the /RootPath.
 /RootPath:<root folder>        - the folder above which will not be possible to
                                  climb when selecting folders.
                                  Default - empty.

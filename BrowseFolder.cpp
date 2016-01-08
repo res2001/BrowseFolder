@@ -11,6 +11,7 @@
 
 void helpmsg();
 UINT my_atoi(wchar_t* str);
+int GetCSIDL(const LCID thloc, const DWORD csflags, const wchar_t* str);
 HANDLE hStdout = 0;	//STDOUT console hendl
 HANDLE hStderr = 0;	//STDERR console hendl
 UINT concp = 0;		//Console code page
@@ -112,7 +113,14 @@ void main()
 			}
 			else if (CompareStringW(thloc, csflags, argv[i], 9, L"/CurPath:", 9) == CSTR_EQUAL)
 			{
-				if (!fbd->SetCurdir(argv[i] + 9))
+				wchar_t* str = argv[i] + 9;
+				bool bret = false;
+				int idl = GetCSIDL(thloc, csflags, str);
+				if (idl)
+					bret = fbd->SetCurdir(idl);
+				else
+					bret = fbd->SetCurdir(str);
+				if (!bret)
 				{
 					state += 5;
 					break;
@@ -120,44 +128,11 @@ void main()
 			}
 			else if (CompareStringW(thloc, csflags, argv[i], 10, L"/RootPath:", 10) == CSTR_EQUAL)
 			{
-				bool bret = false;
 				wchar_t* str = argv[i] + 10;
-				if (CompareStringW(thloc, csflags, str, 7, L"desktop", 7) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_DESKTOPDIRECTORY);
-				else if (CompareStringW(thloc, csflags, str, 8, L"computer", 8) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_DRIVES);
-				else if (CompareStringW(thloc, csflags, str, 9, L"favorites", 9) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_FAVORITES);
-				else if (CompareStringW(thloc, csflags, str, 7, L"appdata", 7) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_APPDATA);
-				else if (CompareStringW(thloc, csflags, str, 12, L"localappdata", 12) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_LOCAL_APPDATA);
-				else if (CompareStringW(thloc, csflags, str, 9, L"documents", 9) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_MYDOCUMENTS);
-				else if (CompareStringW(thloc, csflags, str, 5, L"music", 5) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_MYMUSIC);
-				else if (CompareStringW(thloc, csflags, str, 8, L"pictures", 8) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_MYPICTURES);
-				else if (CompareStringW(thloc, csflags, str, 5, L"video", 5) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_MYVIDEO);
-				else if (CompareStringW(thloc, csflags, str, 7, L"network", 7) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_NETWORK);
-				else if (CompareStringW(thloc, csflags, str, 7, L"profile", 7) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_PROFILE);
-				else if (CompareStringW(thloc, csflags, str, 12, L"programfiles", 12) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_PROGRAM_FILES);
-#ifdef _WIN64
-				else if (CompareStringW(thloc, csflags, str, 15, L"programfilesx86", 15) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_PROGRAM_FILESX86);
-#endif
-				else if (CompareStringW(thloc, csflags, str, 7, L"windows", 7) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_WINDOWS);
-				else if (CompareStringW(thloc, csflags, str, 6, L"system", 6) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_SYSTEM);
-#ifdef _WIN64
-				else if (CompareStringW(thloc, csflags, str, 9, L"systemx86", 9) == CSTR_EQUAL)
-					bret = fbd->SetRoot(CSIDL_SYSTEMX86);
-#endif
+				bool bret = false;
+				int idl = GetCSIDL(thloc, csflags, str);
+				if (idl)
+					bret = fbd->SetRoot(idl);
 				else
 					bret = fbd->SetRoot(str);
 				if(!bret)
@@ -215,6 +190,46 @@ UINT my_atoi(wchar_t* str)
 		ret += *cstr - '0';
 		cstr += 2;
 	}
+	return ret;
+}
+
+int GetCSIDL(const LCID thloc, const DWORD csflags, const wchar_t* str)
+{
+	int ret = 0;
+	if (CompareStringW(thloc, csflags, str, 7, L"desktop", 7) == CSTR_EQUAL)
+		ret = CSIDL_DESKTOPDIRECTORY;
+	else if (CompareStringW(thloc, csflags, str, 8, L"computer", 8) == CSTR_EQUAL)
+		ret = CSIDL_DRIVES;
+	else if (CompareStringW(thloc, csflags, str, 9, L"favorites", 9) == CSTR_EQUAL)
+		ret = CSIDL_FAVORITES;
+	else if (CompareStringW(thloc, csflags, str, 7, L"appdata", 7) == CSTR_EQUAL)
+		ret = CSIDL_APPDATA;
+	else if (CompareStringW(thloc, csflags, str, 12, L"localappdata", 12) == CSTR_EQUAL)
+		ret = CSIDL_LOCAL_APPDATA;
+	else if (CompareStringW(thloc, csflags, str, 9, L"documents", 9) == CSTR_EQUAL)
+		ret = CSIDL_MYDOCUMENTS;
+	else if (CompareStringW(thloc, csflags, str, 5, L"music", 5) == CSTR_EQUAL)
+		ret = CSIDL_MYMUSIC;
+	else if (CompareStringW(thloc, csflags, str, 8, L"pictures", 8) == CSTR_EQUAL)
+		ret = CSIDL_MYPICTURES;
+	else if (CompareStringW(thloc, csflags, str, 5, L"video", 5) == CSTR_EQUAL)
+		ret = CSIDL_MYVIDEO;
+	else if (CompareStringW(thloc, csflags, str, 7, L"network", 7) == CSTR_EQUAL)
+		ret = CSIDL_NETWORK;
+	else if (CompareStringW(thloc, csflags, str, 7, L"profile", 7) == CSTR_EQUAL)
+		ret = CSIDL_PROFILE;
+	else if (CompareStringW(thloc, csflags, str, 12, L"programfiles", 12) == CSTR_EQUAL)
+		ret = CSIDL_PROGRAM_FILES;
+	else if (CompareStringW(thloc, csflags, str, 7, L"windows", 7) == CSTR_EQUAL)
+		ret = CSIDL_WINDOWS;
+	else if (CompareStringW(thloc, csflags, str, 6, L"system", 6) == CSTR_EQUAL)
+		ret = CSIDL_SYSTEM;
+#ifdef _WIN64
+	else if (CompareStringW(thloc, csflags, str, 15, L"programfilesx86", 15) == CSTR_EQUAL)
+		ret = CSIDL_PROGRAM_FILESX86;
+	else if (CompareStringW(thloc, csflags, str, 9, L"systemx86", 9) == CSTR_EQUAL)
+		ret = CSIDL_SYSTEMX86;
+#endif
 	return ret;
 }
 

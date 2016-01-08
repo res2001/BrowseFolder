@@ -92,6 +92,23 @@ bool FolderBrowserDialog::SetCurdir(const wchar_t * str)
 	return SetBufFromDir(str, curdir, MAX_WPATH);
 }
 
+bool FolderBrowserDialog::SetCurdir(const int idl)
+{
+	PIDLIST_ABSOLUTE pidl = 0;
+	wchar_t* tstr = (wchar_t*)LocalAlloc(LPTR, sizeof(wchar_t)*MAX_PATH);
+	bool ret = false;
+	if (tstr &&
+		SHGetSpecialFolderLocation(NULL, idl, &pidl) == S_OK &&
+		SHGetPathFromIDList(pidl, tstr))
+	{
+		ret = SetCurdir(tstr);
+		LocalFree(tstr);
+	}
+	if(pidl)
+		CoTaskMemFree(pidl);
+	return ret;
+}
+
 bool FolderBrowserDialog::SetRoot(const wchar_t * str)
 {
 	bool ret = false;
@@ -249,7 +266,7 @@ INT CALLBACK FolderBrowserDialog::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARA
 			if (bfd->Title[0])
 				SetWindowTextW(hwnd,bfd->Title);
 
-			if(!bfd->curdir[0])
+			if(bfd->curdir[0])
 				::SendMessageW(hwnd, BFFM_SETSELECTIONW, TRUE, (LPARAM)bfd->curdir);
 			else if (bfd->root)
 				::SendMessageW(hwnd, BFFM_SETSELECTIONW, FALSE, (LPARAM)bfd->root);

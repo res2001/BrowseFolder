@@ -70,6 +70,7 @@
       <EntryPointSymbol>main</EntryPointSymbol>
       <MergeSections>.rdata=.text</MergeSections>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <MinimumRequiredVersion>%(MinimumRequiredVersion)</MinimumRequiredVersion>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -98,9 +99,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <MinimumRequiredVersion />
+      <MinimumRequiredVersion>%(MinimumRequiredVersion)</MinimumRequiredVersion>
       <EntryPointSymbol>main</EntryPointSymbol>
-      <MergeSections>.rdata=.text,.idata=.text</MergeSections>
+      <MergeSections>.rdata=.text</MergeSections>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SectionAlignment>
       </SectionAlignment>

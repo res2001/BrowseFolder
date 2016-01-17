@@ -302,7 +302,7 @@ BOOL CALLBACK FolderBrowserDialog::FindTreeViewCallback(HWND hwnd, LPARAM lParam
 	if (!clen)
 		return TRUE;
 
-	if (::lstrcmpiW(bfd->szClassName, L"SysTreeView32") == 0)
+	if (CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, bfd->szClassName, -1, L"SysTreeView32", 13) == CSTR_EQUAL)
 	{
 		HWND* phWnd = (HWND*)lParam;
 		if (phWnd)

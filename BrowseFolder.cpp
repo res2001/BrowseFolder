@@ -60,7 +60,8 @@ void main()
 		const DWORD csflags = NORM_IGNORECASE;
 		for (int i = 1; i < argc; ++i)
 		{
-			if (CompareStringW(thloc, csflags, argv[i], 13, L"/Description:", 13) == CSTR_EQUAL)
+			int arglen = lstrlenW(argv[i]);
+			if (arglen > 13 && CompareStringW(thloc, csflags, argv[i], 13, L"/Description:", 13) == CSTR_EQUAL)
 			{
 				if (!fbd->SetDescription(argv[i] + 13))
 				{
@@ -68,7 +69,7 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 7, L"/Title:", 7) == CSTR_EQUAL)
+			else if (arglen > 7 && CompareStringW(thloc, csflags, argv[i], 7, L"/Title:", 7) == CSTR_EQUAL)
 			{
 				if (!fbd->SetTitle(argv[i] + 7))
 				{
@@ -76,19 +77,19 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 6, L"/Flag:", 6) == CSTR_EQUAL)
+			else if (arglen > 6 && CompareStringW(thloc, csflags, argv[i], 6, L"/Flag:", 6) == CSTR_EQUAL)
 			{
 				UINT f = my_atoi(argv[i] + 6);
 				if ((f & ~0x1f7ff) > 0)
 					echo(hStderr, errmsg[3]);
 				fbd->SetFlags(f);
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 7, L"/Block:", 7) == CSTR_EQUAL)
+			else if (arglen > 7 && CompareStringW(thloc, csflags, argv[i], 7, L"/Block:", 7) == CSTR_EQUAL)
 			{
 				wchar_t* str = argv[i] + 7;
-				if (CompareStringW(thloc, csflags, str, 6, L"window", 6) == CSTR_EQUAL)
+				if (arglen == 13 && CompareStringW(thloc, csflags, str, 6, L"window", 6) == CSTR_EQUAL)
 					fbd->SetOwner(GetConsoleWindow());
-				else if (CompareStringW(thloc, csflags, str, 4, L"none", 4) == CSTR_EQUAL)
+				else if (arglen == 11 && CompareStringW(thloc, csflags, str, 4, L"none", 4) == CSTR_EQUAL)
 					fbd->SetOwner(0);
 				else if (!fbd->SetOwner(FindWindowW(NULL, str)))
 				{
@@ -96,14 +97,14 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 8, L"/Center:", 8) == CSTR_EQUAL)
+			else if (arglen > 8 && CompareStringW(thloc, csflags, argv[i], 8, L"/Center:", 8) == CSTR_EQUAL)
 			{
 				wchar_t* str = argv[i] + 8;
-				if (CompareStringW(thloc, csflags, str, 6, L"window", 6) == CSTR_EQUAL)
+				if (arglen == 14 && CompareStringW(thloc, csflags, str, 6, L"window", 6) == CSTR_EQUAL)
 					fbd->SetCenterWindow(FolderBrowserDialog::eCenter::CenterWindow);
-				else if (CompareStringW(thloc, csflags, str, 6, L"screen", 6) == CSTR_EQUAL)
+				else if (arglen == 14 && CompareStringW(thloc, csflags, str, 6, L"screen", 6) == CSTR_EQUAL)
 					fbd->SetCenterWindow(FolderBrowserDialog::eCenter::CenterScreen);
-				else if (CompareStringW(thloc, csflags, str, 4, L"none", 4) == CSTR_EQUAL)
+				else if (arglen == 12 && CompareStringW(thloc, csflags, str, 4, L"none", 4) == CSTR_EQUAL)
 					fbd->SetCenterWindow(FolderBrowserDialog::eCenter::NoneCenter);
 				else if (!fbd->SetCenterWindow(FolderBrowserDialog::eCenter::CenterHWND, FindWindowW(NULL, str)))
 				{
@@ -111,7 +112,7 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 9, L"/CurPath:", 9) == CSTR_EQUAL)
+			else if (arglen > 9 && CompareStringW(thloc, csflags, argv[i], 9, L"/CurPath:", 9) == CSTR_EQUAL)
 			{
 				wchar_t* str = argv[i] + 9;
 				bool bret = false;
@@ -126,7 +127,7 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 10, L"/RootPath:", 10) == CSTR_EQUAL)
+			else if (arglen > 10 && CompareStringW(thloc, csflags, argv[i], 10, L"/RootPath:", 10) == CSTR_EQUAL)
 			{
 				wchar_t* str = argv[i] + 10;
 				bool bret = false;
@@ -141,7 +142,7 @@ void main()
 					break;
 				}
 			}
-			else if (CompareStringW(thloc, csflags, argv[i], 5, L"/Help", 5) == CSTR_EQUAL)
+			else if (arglen == 5 && CompareStringW(thloc, csflags, argv[i], 5, L"/Help", 5) == CSTR_EQUAL)
 			{
 				helpmsg();
 				state += 7;
@@ -195,42 +196,35 @@ UINT my_atoi(wchar_t* str)
 
 int GetCSIDL(const LCID thloc, const DWORD csflags, const wchar_t* str)
 {
-	int ret = 0;
-	if (CompareStringW(thloc, csflags, str, 7, L"desktop", 7) == CSTR_EQUAL)
-		ret = CSIDL_DESKTOPDIRECTORY;
-	else if (CompareStringW(thloc, csflags, str, 8, L"computer", 8) == CSTR_EQUAL)
-		ret = CSIDL_DRIVES;
-	else if (CompareStringW(thloc, csflags, str, 9, L"favorites", 9) == CSTR_EQUAL)
-		ret = CSIDL_FAVORITES;
-	else if (CompareStringW(thloc, csflags, str, 7, L"appdata", 7) == CSTR_EQUAL)
-		ret = CSIDL_APPDATA;
-	else if (CompareStringW(thloc, csflags, str, 12, L"localappdata", 12) == CSTR_EQUAL)
-		ret = CSIDL_LOCAL_APPDATA;
-	else if (CompareStringW(thloc, csflags, str, 9, L"documents", 9) == CSTR_EQUAL)
-		ret = CSIDL_MYDOCUMENTS;
-	else if (CompareStringW(thloc, csflags, str, 5, L"music", 5) == CSTR_EQUAL)
-		ret = CSIDL_MYMUSIC;
-	else if (CompareStringW(thloc, csflags, str, 8, L"pictures", 8) == CSTR_EQUAL)
-		ret = CSIDL_MYPICTURES;
-	else if (CompareStringW(thloc, csflags, str, 5, L"video", 5) == CSTR_EQUAL)
-		ret = CSIDL_MYVIDEO;
-	else if (CompareStringW(thloc, csflags, str, 7, L"network", 7) == CSTR_EQUAL)
-		ret = CSIDL_NETWORK;
-	else if (CompareStringW(thloc, csflags, str, 7, L"profile", 7) == CSTR_EQUAL)
-		ret = CSIDL_PROFILE;
-	else if (CompareStringW(thloc, csflags, str, 12, L"programfiles", 12) == CSTR_EQUAL)
-		ret = CSIDL_PROGRAM_FILES;
-	else if (CompareStringW(thloc, csflags, str, 7, L"windows", 7) == CSTR_EQUAL)
-		ret = CSIDL_WINDOWS;
-	else if (CompareStringW(thloc, csflags, str, 6, L"system", 6) == CSTR_EQUAL)
-		ret = CSIDL_SYSTEM;
+	const wchar_t *astr[] = {L"desktop", L"computer", L"favorites", L"appdata", L"localappdata", 
+						L"documents", L"music", L"pictures", L"video", L"network", L"profile", 
+						L"programfiles", L"windows", L"system"
 #ifdef _WIN64
-	else if (CompareStringW(thloc, csflags, str, 15, L"programfilesx86", 15) == CSTR_EQUAL)
-		ret = CSIDL_PROGRAM_FILESX86;
-	else if (CompareStringW(thloc, csflags, str, 9, L"systemx86", 9) == CSTR_EQUAL)
-		ret = CSIDL_SYSTEMX86;
+						,L"programfilesx86", L"systemx86"
 #endif
-	return ret;
+	};
+	const int alen[] = {	7, 8, 9, 7, 12, 9, 5, 8, 5, 7, 7, 12, 7, 6
+#ifdef _WIN64
+					,15, 9
+#endif
+	};
+	const int aret[] = { CSIDL_DESKTOPDIRECTORY, CSIDL_DRIVES, CSIDL_FAVORITES, CSIDL_APPDATA, CSIDL_LOCAL_APPDATA,
+					CSIDL_MYDOCUMENTS, CSIDL_MYMUSIC, CSIDL_MYPICTURES, CSIDL_MYVIDEO, CSIDL_NETWORK, CSIDL_PROFILE,
+					CSIDL_PROGRAM_FILES, CSIDL_WINDOWS, CSIDL_SYSTEM
+#ifdef _WIN64
+					,CSIDL_PROGRAM_FILESX86, CSIDL_SYSTEMX86
+#endif
+	};
+#ifdef _WIN64
+	const int count = 16;
+#else
+	const int count = 14;
+#endif
+	int l = lstrlenW(str);
+	for (int i = 0; i < count; ++i)
+		if (l == alen[i] && CompareStringW(thloc, csflags, str, alen[i], astr[i], alen[i]) == CSTR_EQUAL)
+			return aret[i];
+	return 0;
 }
 
 void helpmsg()

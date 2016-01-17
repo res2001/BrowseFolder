@@ -161,7 +161,7 @@ void main()
 		if (state == 11)
 		{
 			echo(hStdout, fbd->SelectedPath);
-			echo(hStdout, L"\n");
+			::WriteFile(hStdout, "\n", 2, NULL, NULL);
 			ret = 0;
 		}
 		break;
@@ -254,24 +254,22 @@ void helpmsg()
 		echo(hStderr, L"Resource not locked.\n");
 		return;
 	}
-	DWORD chw;
-	::WriteFile(hStdout, (char*)resource, nSize, &chw, NULL);
+	::WriteFile(hStdout, (char*)resource, nSize, NULL, NULL);
 }
 
 void echo(HANDLE h, const wchar_t *str)
 {
 	const size_t buflength = BUFLEN * sizeof(char);
 	char strbuf[BUFLEN];
-	DWORD chw = 0;
 	size_t strlen = ::lstrlenW(str);
 	if (strlen > (buflength - 1)) strlen = buflength - 1;
 	int wcl = ::WideCharToMultiByte(concp, 0, str, strlen, strbuf, buflength, NULL, NULL);
 	if (wcl <= 0)
 	{
 		const char *errstr = "Error WideCharToMultibyByte convert string.\n";
-		::WriteFile(hStderr, errstr, lstrlenA(errstr), &chw, NULL);
+		::WriteFile(hStderr, errstr, lstrlenA(errstr), NULL, NULL);
 		return;
 	}
-	::WriteFile (h, strbuf, wcl, &chw, NULL);
+	::WriteFile (h, strbuf, wcl, NULL, NULL);
 	return;
 }
